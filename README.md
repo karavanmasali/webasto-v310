@@ -1,40 +1,27 @@
-# Karavan Webasto V3.10 — Web Önizleme ve Otomatik Termostat
+# Karavan Webasto V3.11 — 3 Sekmeli Web Arayüzü
 
-**Kaynak:** Kullanıcının göndermiş olduğu `Karavan-Webasto-V3-9-OTOMATIK(1).zip` dosyası.
+Bu sürüm, kullanıcının V3.10 sürümü üzerine hazırlanmıştır. **Bluetooth protokolü, Dizi C START, STOP/CLEAR, hedef sıcaklık, otomatik motor ve termostat hesapları aynen korunmuştur.** Değişen dosyalar yalnızca `index.html`, `style.css`, `app.js` (pasif sekme yönetimi, son işlem göstergesi, sürüm yazısı) ve `manifest.webmanifest` (sürüm adıdır).
 
-## Çalışan komutlar korunmuştur
+## Yeni arayüz
 
-`ble.js`, `auto-engine.mjs`, `command-profile.mjs` ve `protocol.mjs` içindeki **RE5011 Dizi C START**, **STOP/CLEAR**, **0x66 hedef** ve doğrulanmış durum okuma mantığı değiştirilmedi; yalnızca JavaScript modül sürüm parametresi güncellendi. Fiziksel cihazda bu sürüm ayrıca test edilmelidir.
+- **Kontrol:** bağlantı, ortam sıcaklığı, otomatik mod, START/STOP dereceleri, manuel START/STOP ve son işlem.
+- **Geçmiş:** bugünkü START/STOP sayıları, çalışma süresi, olay listesi, CSV, 24 saat sıcaklık grafiği.
+- **Ayarlar:** sessiz bildirim, gece görünümü, termostat gecikmeleri, cihaz bilgileri ve tanı kaydı.
+- Alt gezinme sabit kalır. Sekme değiştirmek **sayfayı yenilemez**, BLE bağlantısını kesmez ve otomatik modu kapatmaz.
+- Bağlantı ve cihaz verisi başlıkta görünür.
 
-## V3.10 yenilikleri
+## GitHub Pages kurulumu
 
-- Yeni, sade, telefon ekranına uyumlu ana panel; gereksiz hedef sıcaklığı +/- ve zorunlu hedef test adımı kaldırıldı. Gerçek komutlar hâlâ açık kullanıcı izni ister.
-- START ve STOP sıcaklık eşikleri ayrı; STOP hedefi otomatik aktifken cihaz hedefine gönderilir.
-- Otomatik mod **tercihi** tarayıcı depolamasına kaydedilir ve START/STOP döngüsünde görsel olarak değişmez.
-- Yeni açılan/yenilenen sekmede **tercih açık kalsa da gerçek otomatik kontrol kendiliğinden devreye girmez**. Bluetooth, kullanıcı komut izni ve “Otomatik kontrolü başlat” onayı gerekir. Ekranda “Beklemede” görünür. Bu hayati güvenlik ayrımıdır.
-- Bluetooth geçici koparsa otomatik tercihi açık kalır, kontrol “Bağlantı bekleniyor” gösterir; cihaz kendiliğinden durmaz. Yeniden bağlanma mevcut V3.9 mantığını kullanır. 10 dakika yeniden bağlanılamazsa aktif kontrol beklemeye alınır.
-- Manuel START/STOP, otomatik tercihini kullanıcı müdahalesi olarak kapatır.
-- Gün/saat ile çalışma geçmişi, bugünkü doğrulanmış START/STOP sayıları, kayıtlı START–STOP çiftlerine dayanan tahmini çalışma süresi, CSV olarak dışa aktarma ve geçmişi temizleme.
-- Son 24 saat ortam sıcaklığı grafiği (tarayıcı açıkken gelen ölçümler; demo ve gerçek ölçümler ayrıdır).
-- İsteğe bağlı tarayıcı bildirimi (silent özelliği istenir; tarayıcı/işletim sistemi sessizliği garanti etmez), gece görünümü.
-- Gelişmiş ayarlar ve BLE tanı kayıtları katlanır bölüme taşındı; tanı TXT olarak indirilebilir.
-- İnternetsiz görsel deneme için demo ve sıcaklık +3/-3°C düğmeleri.
-- Durum paketleri CRC ile kontrol edilir, hatada yeni otomatik komut gönderilmez. V3.9'da bulunan 4 START/saat sınırı, STOP teyidi ve beklemeler korunur.
+1. GitHub üzerinde ayrı bir depo oluştur: ör. `webasto-v311`.
+2. ZIP içindeki **14 dosyayı** deponun kök dizinine yükle (`index.html` doğrudan kökte olmalı).
+3. Settings → Pages → Deploy from a branch → `main` / `(root)` → Save.
+4. GitHub Pages adresinden `Demo` seçeneğiyle üç sekmeyi ve otomatik START/STOP göstergelerini dene.
+5. Gerçek Bluetooth testi için Windows 11 Chrome kullan; Web Bluetooth her tarayıcıda desteklenmez. İzin kutusu ve otomatik onay gereklidir.
 
-## Kurulum (GitHub Pages)
+## Kontrol güvenliği ve sınırlamalar
 
-1. Çalışan V3.9 deponu YEDEKLE. En iyisi yeni bir depo ya da yeni bir dal oluştur.
-2. ZIP içindeki dosyaları **klasör oluşturmadan**, depo köküne yükle; `index.html` doğrudan kökte olmalı.
-3. Settings → Pages → Deploy from a branch → `main` / `(root)` → Save. Yayın bağlantısında `V3.10` yazdığını doğrula; `Ctrl+Shift+R` ile yenile.
-4. Önce **Demo** ile görünüm ve termostat davranışını dene. Demo sıcaklığını 20°C altına indir, START bekle; 25°C üstüne çıkar, STOP gecikmesini bekle. Tekrar START için yeniden başlatma beklemesi işler.
-5. Gerçek cihazda bağlantı kur; **Gerçek Webasto komutlarına izin veriyorum** kutusunu aç. Önce gözetim altında manuel START/STOP dene.
-6. Otomatik modu açınca ek onay istenir. Sayfa yenilendiyse tercih açık ama kontrol `Beklemede` olur; **Otomatik kontrolü başlat** butonuyla tekrar onay ver.
-7. En sonunda tam bir otomatik START→STOP→START döngüsünü cihazın yanında test et. Soğutma tamamlanmadan güç kesme.
-
-## Sınırlar
-
-- **Bu bir WEB uygulaması:** Bilgisayar ve tarayıcı açık/çalışır olmalı; sekme uyuyabilir veya işletim sistemi durdurabilir. iOS arka plan kontrolünün çalıştığı anlamına gelmez.
-- Web bildirimleri tarayıcı ve işletim sistemi ayarlarına bağlıdır; `silent:true` talebi her durumda sessiz olacağını garanti etmez.
-- Cihaz bağlantısı kaybolduğunda otomatik kontrol edemez; ısıtıcı çalışmaya devam edebilir.
-- Çalışma geçmişindeki START/STOP sayıları **cihazdan doğrulanan komut geçişlerini** sayar, gerçek yanma süresi veya yakıt miktarını ölçmez. Geçmiş o tarayıcıdaki localStorage'da tutulur; başka cihazda otomatik olarak görünmez.
-- Dizel ısıtıcıda sağlam egzoz, doğru havalandırma, çalışan CO alarmı ve üretici güvenlik koşulları şarttır. Gözetimsiz çalışma güvenliği bu yazılım tarafından sertifikalandırılmamıştır.
+- Demo işlemleri fiziksel cihazı kontrol etmez. Gerçek cihazda V3.11'i ayrıca test etmeden önceki başarıya güvenme.
+- Otomatik modun açık **tercihi** saklanır; sayfa kapanıp yeniden açıldığında Bluetooth tekrar bağlanmalı ve komut izni/onayı verilmelidir.
+- Tarayıcı kapalıyken, bilgisayar uykuya geçtiğinde veya bağlantı koptuğunda termostat güvenilir kontrol sunmaz; ısıtıcı açık kalabilir.
+- Web bildirimleri cihaz/işletim sisteminin iznine ve politikasına bağlıdır, tamamen sessiz olmayabilir.
+- Kullanıcı denetimi olmadan sürekli/gece kullanımına geçmeden önce uzun süreli gerçek cihaz testleri, soğutma döngüsü, CO alarmı, egzoz ve havalandırma güvenliği zorunludur.

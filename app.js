@@ -32,6 +32,8 @@ function renderHistory(){
  const stats=dayStats(history);$('todayStarts').textContent=stats.starts;$('todayStops').textContent=stats.stops;
  $('historyCount').textContent=`${history.length} kayıt`;
  $('lastAction').textContent=stats.last?time(stats.last.at):'—';
+ const last=history.slice().reverse().find(e=>e.type==='start'||e.type==='stop');
+ $('homeLastAction').textContent=last?`${time(last.at)} · ${last.type==='start'?'START':'STOP'}`:'Henüz işlem yok';
  const runtime=recordedRuntimeMs(history);$('todayRuntime').textContent=runtime?Math.round(runtime/60000)+' dk':'—';
  const list=$('historyList');list.replaceChildren();
  if(!history.length){const li=document.createElement('li');li.className='empty';li.textContent='Henüz çalışma kaydı yok.';list.append(li);return;}
@@ -237,7 +239,7 @@ $('nightToggle').onchange=e=>{options.night=e.target.checked;saveOptions();rende
 $('clearHistoryBtn').onclick=()=>{if(!window.confirm('Çalışma geçmişindeki kayıtlar silinsin mi?'))return;history=[];saveHistory();renderHistory();};
 function download(name,content,mime){const blob=new Blob([content],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}
 $('exportHistoryBtn').onclick=()=>download('webasto-calisma-gecmisi.csv',historyCsv(history),'text/csv;charset=utf-8');
-$('exportBtn').onclick=()=>download('webasto-v3-10-tani.txt',logs.join('\n'),'text/plain;charset=utf-8');
+$('exportBtn').onclick=()=>download('webasto-v3-11-tani.txt',logs.join('\n'),'text/plain;charset=utf-8');
 $('readBtn').onclick=()=>ble.read();
 async function autoCommand(operation,temperature){
  if(busy){log('Otomatik '+operation+' ertelendi; başka bir işlem sürüyor.');engine.sendFailed(operation);return;}
@@ -311,8 +313,32 @@ async function demoAutoCommand(op){
  activity(op,message);log('DEMO '+message);busy=false;render();
 }
 setInterval(()=>{render();},3500);
+
+// V3.11: Sekmeler sadece görünürlüğü değiştirir. BLE bağlantısı ve otomatik motor sayfa boyunca çalışır.
+const tabIds=['control','history','settings'];
+function showTab(tab,{focus=false}={}){
+ if(!tabIds.includes(tab))return;
+ for(const id of tabIds){
+  const active=id===tab;
+  $('tab-'+id).hidden=!active;
+  const btn=$('tabBtn-'+id);btn.classList.toggle('current',active);
+  btn.setAttribute('aria-selected',String(active));btn.tabIndex=active?0:-1;
+  if(active&&focus)btn.focus();
+ }
+ window.scrollTo(0,0);
+}
+for(const id of tabIds){
+ $('tabBtn-'+id).addEventListener('click',()=>showTab(id));
+ $('tabBtn-'+id).addEventListener('keydown',e=>{
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
+  e.preventDefault();
+  const next=e.key==='Home'?0:e.key==='End'?tabIds.length-1:(tabIds.indexOf(id)+(e.key==='ArrowRight'?1:-1)+tabIds.length)%tabIds.length;
+  showTab(tabIds[next],{focus:true});
+ });
+}
+
 // Tercih localStorage'da saklanır. Sayfanın her yeni oturumunda autoActive=false kalır;
 // gerçek komut için bağlantı, komut izni ve açık onay yeniden gerekir.
-log('V3.10 açıldı. V3.9 çalıştığı bildirilen RE5011 Dizi C START, STOP/CLEAR ve otomatik motor komutları korunuyor.');
+log('V3.11 açıldı. V3.9 çalıştığı bildirilen RE5011 Dizi C START, STOP/CLEAR ve otomatik motor komutları korunuyor.');
 if(cfg.auto)log('Otomatik tercih AÇIK olarak yüklendi; gerçek kontrol tekrar onay verilince başlayacak.');
 renderHistory();renderChart();render();
